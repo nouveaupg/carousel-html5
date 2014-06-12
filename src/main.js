@@ -64,7 +64,6 @@ define(function(require, exports, module) {
             if (dataPoints[ptr].change < 0) {
                 negative = true;
                 height = (dataPoints[ptr].change/floor) * 100;
-                console.log(height);
             }
             else {
                 height = (dataPoints[ptr].change/ceiling) * 100;
@@ -73,7 +72,7 @@ define(function(require, exports, module) {
             candlesticks.push(new Surface({
                 content: dataPoints[ptr].symbol,
                 size:[60,height],
-                origin:[0.5,0],
+                origin:[1,1],
                 classes: ['candlestick',negative ? 'negative' : 'positive']
             }))
         }
@@ -85,8 +84,23 @@ define(function(require, exports, module) {
         if (classList.indexOf("negative") > -1) {
             negative = true;
         }
+        
+        var pos = Math.abs(x-5);
+        
+        var rotationFactor = Math.pow(2,pos+2);
+        console.log("x: " + x + " pos: " + pos + " rotationFactor: " + rotationFactor);
+        var rotation = 0;
+        if ( (x - 5) < 0 ) {
+            rotation = Math.PI/rotationFactor * -1;
+        }
+        else {
+            rotation = Math.PI/rotationFactor;
+        }
+        
         container.add(new StateModifier({
-            transform: Transform.translate(10+(x*100), negative ? 100 : 100 - candlesticks[x].size[1], 0)
+            transform: Transform.rotateZ(rotation)
+        })).add(new StateModifier({
+            transform: Transform.translate(10+(x*100), negative ? 100 + (pos*10) : (100 - candlesticks[x].size[1]) + (pos*10), 0)
         })).add(candlesticks[x]);
     }
 
