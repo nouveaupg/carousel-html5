@@ -8,6 +8,8 @@ define(function(require, exports, module) {
     var StateModifier = require('famous/modifiers/StateModifier');
     var ContainerSurface = require('famous/surfaces/ContainerSurface');
 
+    // insert data to graph
+    
     var data = [
         {"symbol":"P","change":1.0},
         {"symbol":"PEGA","change":-1.0},
@@ -26,6 +28,7 @@ define(function(require, exports, module) {
         {"symbol":"ABT","change":-2.27}
     ];
     
+    // sort data into correct display order
     var gainers=[];
     var losers=[];
     for(var x=0;x<data.length;x++){
@@ -50,132 +53,42 @@ define(function(require, exports, module) {
 
     // your app here
     
-    var stateModifier = new StateModifier({
-        transform: Transform.translate(150, 100, 0)
-    });
+    var candlesticks = [];
     
-    var secondModifier = new StateModifier({
-        transform: Transform.rotateZ(Math.PI/-24)
-    })
-    
-    var candlestick = new Surface({
-        content: "GOOG",
-        size:[60,100],
-        classes: ['candlestick','negative']
-    });
-    
-    var logo = new ImageSurface({
-        size: [200, 200],
-        content: 'http://code.famo.us/assets/famous_logo.svg',
-        classes: ['double-sided']
-    });
-
-    var initialTime = Date.now();
-    var centerSpinModifier = new Modifier({
-        origin: [0.5, 0.5],
-        transform : function(){
-            return Transform.rotateZ(.002 * (Date.now() - initialTime));
+    for (var x = 0; x < 11; x++) {
+        var ptr = current + (-5+x);
+        
+        if (ptr > -1) {
+            var negative = false;
+            var height = 0;
+            if (dataPoints[ptr].change < 0) {
+                negative = true;
+                height = (dataPoints[ptr].change/floor) * 100;
+                console.log(height);
+            }
+            else {
+                height = (dataPoints[ptr].change/ceiling) * 100;
+            }
+            
+            candlesticks.push(new Surface({
+                content: dataPoints[ptr].symbol,
+                size:[60,height],
+                origin:[0.5,0],
+                classes: ['candlestick',negative ? 'negative' : 'positive']
+            }))
         }
-    });
+    }
+    
+    for ( var x = 0; x < candlesticks.length; x++ ) {
+        var classList = candlesticks[x].getClassList();
+        var negative = false;
+        if (classList.indexOf("negative") > -1) {
+            negative = true;
+        }
+        container.add(new StateModifier({
+            transform: Transform.translate(10+(x*100), negative ? 100 : 100 - candlesticks[x].size[1], 0)
+        })).add(candlesticks[x]);
+    }
 
-    container.add(stateModifier).add(secondModifier).add(candlestick);
-    
-    container.add(new StateModifier({
-        transform: Transform.translate(250, 80, 0)
-    })).add(new StateModifier({
-        transform: Transform.rotateZ(Math.PI/-32)
-    })).add(new Surface({
-        origin: [0.5,1],
-        content: "AMD",
-        size:[60,120],
-        classes: ['candlestick','negative']
-    }));
-    
-    container.add(new StateModifier({
-        transform: Transform.translate(350, 60, 0)
-    })).add(new StateModifier({
-        transform: Transform.rotateZ(Math.PI/-64)
-    })).add(new Surface({
-        origin: [0.5,1],
-        content: "FB",
-        size:[60,150],
-        classes: ['candlestick','negative']
-    }));
-    
-    container.add(new StateModifier({
-        transform: Transform.translate(450, 50, 0)
-    })).add(new StateModifier({
-        transform: Transform.rotateZ(Math.PI/-128)
-    })).add(new Surface({
-        origin: [0.5,1],
-        content: "AAPL",
-        size:[60,200],
-        classes: ['candlestick','negative']
-    }));
-    
-    container.add(new StateModifier({
-        transform: Transform.translate(550, 0, 0)
-    })).add(new Surface({
-        origin: [0.5,0],
-        content: "MHF",
-        size:[60,150],
-        classes: ['candlestick','positive']
-    }));
-    
-    container.add(new StateModifier({
-        transform: Transform.translate(650, 10, 0)
-    })).add(new StateModifier({
-        transform: Transform.rotateZ(Math.PI/128)
-    })).add(new Surface({
-        origin: [0.5,0],
-        content: "KO",
-        size:[60,140],
-        classes: ['candlestick','positive']
-    }));
-    
-    container.add(new StateModifier({
-        transform: Transform.translate(750, 45, 0)
-    })).add(new StateModifier({
-        transform: Transform.rotateZ(Math.PI/64)
-    })).add(new Surface({
-        origin: [0.5,0],
-        content: "TOT",
-        size:[60,110],
-        classes: ['candlestick','positive']
-    }));
-    
-    container.add(new StateModifier({
-        transform: Transform.translate(850, 70, 0)
-    })).add(new StateModifier({
-        transform: Transform.rotateZ(Math.PI/32)
-    })).add(new Surface({
-        origin: [0.5,0],
-        content: "AA",
-        size:[60,90],
-        classes: ['candlestick','positive']
-    }));
-    
-    var lastChild = new Surface({
-        origin: [0.5,0],
-        content: "AA",
-        size:[60,70],
-        classes: ['candlestick','positive']
-    });
-    
-    var lastChildTransform = new StateModifier({
-        transform: Transform.translate(950, 100, 0)
-    });
-    
-    var lastChildRotation =  new StateModifier({
-        transform: Transform.rotateZ(Math.PI/16)
-    });
-    
-    container.add(lastChildTransform).add(lastChildRotation).add(lastChild);
-    
-    lastChildTransform.setTransform(Transform.translate(1050, 150, 0),{
-        duration: 1000, curve: "easeInOut" });
-    
-    lastChildRotation.setTransform(Transform.rotateZ(Math.PI/8),{duration:1000,curve: "easeInOut"});
-    
     mainContext.add(container);
 });
