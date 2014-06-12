@@ -101,14 +101,63 @@ define(function(require, exports, module) {
         if ( pos == 0 ) {
             rotation = 0;
         }
-        console.log("x: " + x + " pos: " + (5 - pos) + " rotationFactor: " + rotation);
-        container.add(new StateModifier({
+        candlesticks[x].translation = new StateModifier({
             transform: Transform.translate(10+(x*100), negative ? 110 + (pos * 15) : (100 - candlesticks[x].size[1]) + (pos * 10) + 10, 0)
-        })).add(new StateModifier({
+        });
+        candlesticks[x].rotation = new StateModifier({
             transform: Transform.rotateZ(rotation),
             opacity: (100-(pos*10))/100
-        })).add(candlesticks[x]);
+        });
+        
+        container.add(candlesticks[x].translation).add(candlesticks[x].rotation).add(candlesticks[x]);
     }
 
     mainContext.add(container);
+    
+    // move to the right...
+    
+    var shiftCandlesticks = function(forward) {
+        for (var x = 0; x < candlesticks.length; x++ ) {
+            var classList = candlesticks[x].getClassList();
+            var negative = false;
+            if (classList.indexOf("negative") > -1) {
+                negative = true;
+            }
+            
+            // x - 4: shift to the right
+            // x - 6: shift to the left
+    
+            var pos = Math.abs(forward ? x-4 : x-6);
+            
+            // INCREASE x where 2^(5-pos)+x to DECREASE arc
+            
+            var rotationFactor = Math.pow(2,(5-pos)+5);
+            
+            var rotation = 0;
+            if ( (x - 5) < 0 ) {
+                rotation = Math.PI/rotationFactor * -1;
+            }
+            else {
+                rotation = Math.PI/rotationFactor;
+            }
+            // just an easy optimization
+            if ( pos == 0 ) {
+                rotation = 0;
+            }
+            
+            var deltaX = forward ? 10+(x*100) + 100 : 10+(x*100) - 100;
+            var deltaY = negative ? 110 + (pos * 15) : (100 - candlesticks[x].size[1]) + (pos * 10) + 10;
+            
+            candlesticks[x].translation.setTransform(
+            Transform.translate(deltaX, deltaY, 0),
+            { duration : 1000, curve: 'easeInOut' });
+            candlesticks[x].rotation.setTransform(
+                Transform.rotateZ(rotation),
+                 { duration : 1000, curve: 'easeInOut' }
+            );
+            candlesticks[x].rotation.setOpacity((100-(pos*10))/100,{ duration : 1000, curve: 'easeInOut'});
+        }   
+    }
+    
+    shiftCandlesticks(true);
 });
