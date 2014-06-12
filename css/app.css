@@ -18,10 +18,11 @@ html {
 }
 
 .negative {
-    background:-webkit-linear-gradient(top, #ff3019 0%,#cf0404 100%);
+    background:-webkit-linear-gradient(top, rgba(123,1,0,1) 0%,rgba(207,4,4,1) 72%);
+    border-radius: 3px;
 }
 
 .positive {
-    background: -webkit-linear-gradient(top, rgba(30,87,153,1) 0%,rgba(41,137,216,1) 50%,rgba(125,185,232,1) 100%);
-    vertical-align: text-bottom;
+    background: -webkit-linear-gradient(top, rgba(32,192,240,1) 0%,rgba(20,120,140,1) 72%); 
+    border-radius: 3px;
 }

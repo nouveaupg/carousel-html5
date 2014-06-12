@@ -72,7 +72,7 @@ define(function(require, exports, module) {
             candlesticks.push(new Surface({
                 content: dataPoints[ptr].symbol,
                 size:[60,height],
-                origin:[1,1],
+                origin:[0.5,0.5],
                 classes: ['candlestick',negative ? 'negative' : 'positive']
             }))
         }
@@ -87,8 +87,10 @@ define(function(require, exports, module) {
         
         var pos = Math.abs(x-5);
         
-        var rotationFactor = Math.pow(2,pos+2);
-        console.log("x: " + x + " pos: " + pos + " rotationFactor: " + rotationFactor);
+        // INCREASE x where 2^(5-pos)+x to DECREASE arc
+        
+        var rotationFactor = Math.pow(2,(5-pos)+5);
+        
         var rotation = 0;
         if ( (x - 5) < 0 ) {
             rotation = Math.PI/rotationFactor * -1;
@@ -96,11 +98,15 @@ define(function(require, exports, module) {
         else {
             rotation = Math.PI/rotationFactor;
         }
-        
+        if ( pos == 0 ) {
+            rotation = 0;
+        }
+        console.log("x: " + x + " pos: " + (5 - pos) + " rotationFactor: " + rotation);
         container.add(new StateModifier({
-            transform: Transform.rotateZ(rotation)
+            transform: Transform.translate(10+(x*100), negative ? 110 + (pos * 15) : (100 - candlesticks[x].size[1]) + (pos * 10) + 10, 0)
         })).add(new StateModifier({
-            transform: Transform.translate(10+(x*100), negative ? 100 + (pos*10) : (100 - candlesticks[x].size[1]) + (pos*10), 0)
+            transform: Transform.rotateZ(rotation),
+            opacity: (100-(pos*10))/100
         })).add(candlesticks[x]);
     }
 
