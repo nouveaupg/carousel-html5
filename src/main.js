@@ -32,6 +32,13 @@ define(function(require, exports, module) {
     var appView = new AppView(data)
     hook = appView;
     mainContext.add(appView);
-    appView.shiftCandlesticks(false);
-    appView.shiftCandlesticks(false);
+    
+    Engine.on('keydown',function(e) {
+        if ( e.which == 37) {
+            appView.shiftCandlesticks(false);
+        }
+        else if ( e.which == 39) {
+            appView.shiftCandlesticks(true);
+        }
+    });
 });
