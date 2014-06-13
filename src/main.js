@@ -1,3 +1,5 @@
+var hook;
+
 define(function(require, exports, module) {
     // import dependencies
     var Engine = require('famous/core/Engine');
@@ -27,6 +29,9 @@ define(function(require, exports, module) {
             {"symbol":"AMD","change":-3.48},
             {"symbol":"ABT","change":-2.27}
         ];
-    
-    mainContext.add(new AppView(data));
+    var appView = new AppView(data)
+    hook = appView;
+    mainContext.add(appView);
+    appView.shiftCandlesticks(false);
+    appView.shiftCandlesticks(false);
 });
